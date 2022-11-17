@@ -1,4 +1,3 @@
-import { PixelCrop } from 'react-image-crop';
 import { toJson } from './toJson';
 
 let previewUrl = '';

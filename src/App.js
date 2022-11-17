@@ -1,23 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import { toJson } from './toJson';
 
 import 'react-image-crop/dist/ReactCrop.css';
 
-// This is to demonstate how to make and center a % aspect crop
-// which is a bit trickier so we use some helper functions.
-
-const json = {};
-
-function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
+function centerAspectCrop(mediaWidth, mediaHeight) {
   return centerCrop(
     makeAspectCrop(
       {
         unit: '%',
         width: 90,
       },
-      aspect,
       mediaWidth,
       mediaHeight,
     ),
@@ -28,7 +22,6 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
 
 export default function App() {
   const [imgSrc, setImgSrc] = useState('');
-  const previewCanvasRef = useRef(null);
   const imgRef = useRef(null);
 
   const [dimensions, setDimensions] = useState();
@@ -37,7 +30,6 @@ export default function App() {
 
   const [crop, setCrop] = useState();
   const [completedCrop, setCompletedCrop] = useState();
-  const [aspect, setAspect] = useState(16 / 9);
 
   function onSelectFile(e) {
     if (e.target.files && e.target.files.length > 0) {
@@ -52,21 +44,9 @@ export default function App() {
   }
 
   function onImageLoad(e) {
-    if (aspect) {
       const { width, height } = e.currentTarget;
       setDimensions({ height: e.target.naturalHeight, width: e.target.naturalWidth });
-      setCrop(centerAspectCrop(width, height, aspect));
-    }
-  }
-
-  function handleToggleAspectClick() {
-    if (aspect) {
-      setAspect(undefined);
-    } else if (imgRef.current) {
-      const { width, height } = imgRef.current;
-      setAspect(16 / 9);
-      setCrop(centerAspectCrop(width, height, 16 / 9));
-    }
+      setCrop(centerAspectCrop(width, height));
   }
 
   function formateJson() {
@@ -85,16 +65,12 @@ export default function App() {
           <div>{info}</div>
         </div>
         <input type="file" accept="image/*" onChange={onSelectFile} />
-        <div>
-          <button onClick={handleToggleAspectClick}>Toggle aspect {aspect ? 'off' : 'on'}</button>
-        </div>
       </div>
       {!!imgSrc && (
         <ReactCrop
           crop={crop}
           onChange={(_, percentCrop) => setCrop(percentCrop)}
           onComplete={(c) => setCompletedCrop(c)}
-          aspect={aspect}
         >
           <img ref={imgRef} alt="Crop me" src={imgSrc} onLoad={onImageLoad} />
         </ReactCrop>
@@ -103,11 +79,11 @@ export default function App() {
         <button onClick={formateJson}>Добавить</button>
         <pre>
           {json
-            ? json.map((item) => (
-                <>
+            ? json.map((item, index) => (
+                <span key={index}>
                   <br />
                   {item}
-                </>
+                </span>
               ))
             : ''}
         </pre>
