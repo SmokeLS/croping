@@ -1,24 +1,9 @@
 import React, { useState, useRef } from 'react';
 
-import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
+import ReactCrop from 'react-image-crop';
 import { toJson } from './toJson';
 
 import 'react-image-crop/dist/ReactCrop.css';
-
-function centerAspectCrop(mediaWidth, mediaHeight) {
-  return centerCrop(
-    makeAspectCrop(
-      {
-        unit: '%',
-        width: 90,
-      },
-      mediaWidth,
-      mediaHeight,
-    ),
-    mediaWidth,
-    mediaHeight,
-  );
-}
 
 export default function App() {
   const [imgSrc, setImgSrc] = useState('');
@@ -46,12 +31,11 @@ export default function App() {
   function onImageLoad(e) {
       const { width, height } = e.currentTarget;
       setDimensions({ height: e.target.naturalHeight, width: e.target.naturalWidth });
-      setCrop(centerAspectCrop(width, height));
+      setCrop(width, height);
   }
 
   function formateJson() {
     if (completedCrop?.width && completedCrop?.height && imgRef.current) {
-      console.log(json);
       setJson([...json, toJson(imgRef.current, completedCrop, json)]);
     }
   }
