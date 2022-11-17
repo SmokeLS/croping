@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-
 import ReactCrop from 'react-image-crop';
 import { toJson } from './toJson';
 
