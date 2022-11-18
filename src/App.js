@@ -13,6 +13,7 @@ export default function App() {
   const [size, setSize] = useState();
   const [json, setJson] = useState([]);
 
+  const [cropSizes, setCropSizes] = useState();
   const [crop, setCrop] = useState();
   const [completedCrop, setCompletedCrop] = useState();
 
@@ -40,6 +41,59 @@ export default function App() {
     }
   }
 
+  function mouseDownHandler(e) {
+    const canvas = document.getElementsByTagName('canvas')[0];
+
+    if (!canvas && !canvas.getContext) {
+      return;
+    }
+
+    const context = canvas.getContext('2d');
+
+    e.target.addEventListener('mousemove', (e) => mouseMoveOnce(e, canvas, context), { once: true });
+  }
+
+  function mouseMoveOnce(e, canvas, context) {
+    const prev = e;
+
+    function sameMouseMoveHandler(e) {
+      mouseMoveHandler(e, prev, canvas, context);
+    }
+
+    e.target.addEventListener('mousemove', sameMouseMoveHandler);
+    e.target.addEventListener('mouseup', (e) => mouseUpHandler(e, sameMouseMoveHandler), { once: true });
+  }
+
+  function mouseMoveHandler(e, prev, canvas, context) {
+    if (!e || !prev) {
+      return;
+    }
+
+    let x = prev.offsetX,
+      y = prev.offsetY,
+      w = e.offsetX - prev.offsetX,
+      h = e.offsetY - prev.offsetY;
+
+    context.clearRect(0, 0, canvas.width, canvas.height); // стирает старый прямоугольник при попытки создать новый
+
+    if (!w || !h) {
+      return;
+    }
+
+    context.strokeRect(x, y, w, h); // создание прямоугольника без заливки согласно переданным параметром от мышки
+
+    setCropSizes({
+      x,
+      y,
+      w,
+      h,
+    });
+  }
+
+  function mouseUpHandler(e, sameMouseMoveHandler) {
+    e.target.removeEventListener('mousemove', sameMouseMoveHandler);
+  }
+
   const info = dimensions ? `${dimensions.width}x${dimensions.height} pixels; RGB; ${size} ` : '';
 
   return (
@@ -51,13 +105,22 @@ export default function App() {
         {!imgSrc && <input type="file" accept="image/*" onChange={onSelectFile} />}
       </div>
       {!!imgSrc && (
-        <ReactCrop
-          crop={crop}
-          onChange={(_, percentCrop) => setCrop(percentCrop)}
-          onComplete={(c) => setCompletedCrop(c)}
-        >
+        <>
+          {dimensions && (
+            <canvas
+              onMouseDown={mouseDownHandler}
+              width={dimensions.width}
+              height={dimensions.height}
+              style={{
+                position: 'absolute',
+                width: dimensions.width,
+                height: dimensions.height,
+                boxSizing: 'border-box',
+              }}
+            ></canvas>
+          )}
           <img ref={imgRef} alt="img" src={imgSrc} onLoad={onImageLoad} />
-        </ReactCrop>
+        </>
       )}
       <div>
         <pre>
