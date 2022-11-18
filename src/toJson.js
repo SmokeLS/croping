@@ -4,8 +4,6 @@ export function toJson(image, crop, json) {
 
   const width = Math.floor(crop.width * scaleX);
   const height =  Math.floor(crop.height * scaleY);
-  
-  console.log(crop.x, crop.y);
 
   const cropX = crop.x * scaleX;
   const cropY = crop.y * scaleY;
