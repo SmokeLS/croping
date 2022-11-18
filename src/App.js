@@ -30,7 +30,7 @@ export default function App() {
 
   function formateJson() {
     if (cropSizes) {
-      setJson([...json, toJson(imgRef.current, cropSizes, json)]);
+      setJson([...json, toJson(cropSizes, json)]);
     }
   }
 
@@ -76,9 +76,13 @@ export default function App() {
       return;
     }
 
-    context.strokeRect(Math.floor(x * scaleX),Math.floor( y * scaleY),Math.floor( w * scaleX),Math.floor( h * scaleY));
+    const cropX = Math.floor(x * scaleX);
+    const cropY = Math.floor(y * scaleY);
+    const width =  Math.floor(w * scaleX);
+    const height =  Math.floor(h * scaleY);
 
-    setCropSizes({ x, y, w, h });
+    context.strokeRect(cropX, cropY, width, height);
+    setCropSizes({ cropX, cropY, width, height });
   }
 
   function mouseUpHandler(e, sameMouseMoveHandler) {
@@ -96,7 +100,7 @@ export default function App() {
         {!imgSrc && <input type="file" accept="image/*" onChange={onSelectFile} />}
       </div>
       {!!imgSrc && (
-        <div style={{width: '100vw'}}>
+      <div className={classes.imgContainer}>
           {dimensions && (
             <canvas
               onMouseDown={mouseDownHandler}
@@ -110,7 +114,7 @@ export default function App() {
               }}
             ></canvas>
           )}
-          <img ref={imgRef} alt="img" src={imgSrc} onLoad={onImageLoad} style={{width: '100%'}}/>
+          <img ref={imgRef} alt="img" src={imgSrc} onLoad={onImageLoad} width="100%" />
         </div>
       )}
       <div>
