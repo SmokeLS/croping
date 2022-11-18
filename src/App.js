@@ -1,8 +1,6 @@
 import React, { useState, useRef } from 'react';
-import ReactCrop from 'react-image-crop';
 import { toJson } from './toJson';
 
-import 'react-image-crop/dist/ReactCrop.css';
 import classes from './App.module.css';
 
 export default function App() {
@@ -14,12 +12,9 @@ export default function App() {
   const [json, setJson] = useState([]);
 
   const [cropSizes, setCropSizes] = useState();
-  const [crop, setCrop] = useState();
-  const [completedCrop, setCompletedCrop] = useState();
 
   function onSelectFile(e) {
     if (e.target.files && e.target.files.length > 0) {
-      setCrop(undefined);
       const reader = new FileReader();
       reader.addEventListener('load', (e) => {
         setImgSrc(reader.result?.toString() || '');
@@ -30,14 +25,12 @@ export default function App() {
   }
 
   function onImageLoad(e) {
-    const { width, height } = e.currentTarget;
     setDimensions({ height: e.target.naturalHeight, width: e.target.naturalWidth });
-    setCrop(width, height);
   }
 
   function formateJson() {
-    if (completedCrop?.width && completedCrop?.height && imgRef.current) {
-      setJson([...json, toJson(imgRef.current, completedCrop, json)]);
+    if (cropSizes) {
+      setJson([...json, toJson(imgRef.current, cropSizes, json)]);
     }
   }
 
@@ -65,6 +58,9 @@ export default function App() {
   }
 
   function mouseMoveHandler(e, prev, canvas, context) {
+    const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+    const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+
     if (!e || !prev) {
       return;
     }
@@ -74,20 +70,15 @@ export default function App() {
       w = e.offsetX - prev.offsetX,
       h = e.offsetY - prev.offsetY;
 
-    context.clearRect(0, 0, canvas.width, canvas.height); // стирает старый прямоугольник при попытки создать новый
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
     if (!w || !h) {
       return;
     }
 
-    context.strokeRect(x, y, w, h); // создание прямоугольника без заливки согласно переданным параметром от мышки
+    context.strokeRect(Math.floor(x * scaleX),Math.floor( y * scaleY),Math.floor( w * scaleX),Math.floor( h * scaleY));
 
-    setCropSizes({
-      x,
-      y,
-      w,
-      h,
-    });
+    setCropSizes({ x, y, w, h });
   }
 
   function mouseUpHandler(e, sameMouseMoveHandler) {
@@ -105,7 +96,7 @@ export default function App() {
         {!imgSrc && <input type="file" accept="image/*" onChange={onSelectFile} />}
       </div>
       {!!imgSrc && (
-        <>
+        <div style={{width: '100vw'}}>
           {dimensions && (
             <canvas
               onMouseDown={mouseDownHandler}
@@ -113,14 +104,14 @@ export default function App() {
               height={dimensions.height}
               style={{
                 position: 'absolute',
-                width: dimensions.width,
-                height: dimensions.height,
+                width: imgRef.current.width,
+                height: imgRef.current.height,
                 boxSizing: 'border-box',
               }}
             ></canvas>
           )}
-          <img ref={imgRef} alt="img" src={imgSrc} onLoad={onImageLoad} />
-        </>
+          <img ref={imgRef} alt="img" src={imgSrc} onLoad={onImageLoad} style={{width: '100%'}}/>
+        </div>
       )}
       <div>
         <pre>
