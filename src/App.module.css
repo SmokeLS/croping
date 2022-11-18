@@ -1,14 +1,5 @@
 .App {
   height: 100vh;
-  overflow: hidden;
   margin: 0 auto;
-  text-align: center;
-}
-
-.image {
-  height: 100%;
-}
-
-.text {
   text-align: center;
 }

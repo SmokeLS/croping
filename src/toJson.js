@@ -5,6 +5,8 @@ export function toJson(image, crop, json) {
   const width = Math.floor(crop.width * scaleX);
   const height =  Math.floor(crop.height * scaleY);
   
+  console.log(crop.x, crop.y);
+
   const cropX = crop.x * scaleX;
   const cropY = crop.y * scaleY;
 
@@ -13,12 +15,12 @@ export function toJson(image, crop, json) {
     object_id: json.length,
     objectClass: "car",
     origin: {
-      x: cropX,
-      y: cropY,
+      x: Math.round(cropX),
+      y: Math.round(cropY),
     },
     size: {
-      width: width,
-      height: height,
+      width: Math.round(width),
+      height: Math.round(height),
     },
   });
 }

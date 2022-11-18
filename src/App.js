@@ -3,6 +3,7 @@ import ReactCrop from 'react-image-crop';
 import { toJson } from './toJson';
 
 import 'react-image-crop/dist/ReactCrop.css';
+import classes from './App.module.css';
 
 export default function App() {
   const [imgSrc, setImgSrc] = useState('');
@@ -17,7 +18,7 @@ export default function App() {
 
   function onSelectFile(e) {
     if (e.target.files && e.target.files.length > 0) {
-      setCrop(undefined); // Makes crop preview update between images.
+      setCrop(undefined);
       const reader = new FileReader();
       reader.addEventListener('load', (e) => {
         setImgSrc(reader.result?.toString() || '');
@@ -28,9 +29,9 @@ export default function App() {
   }
 
   function onImageLoad(e) {
-      const { width, height } = e.currentTarget;
-      setDimensions({ height: e.target.naturalHeight, width: e.target.naturalWidth });
-      setCrop(width, height);
+    const { width, height } = e.currentTarget;
+    setDimensions({ height: e.target.naturalHeight, width: e.target.naturalWidth });
+    setCrop(width, height);
   }
 
   function formateJson() {
@@ -42,12 +43,12 @@ export default function App() {
   const info = dimensions ? `${dimensions.width}x${dimensions.height} pixels; RGB; ${size} ` : '';
 
   return (
-    <div className="App">
-      <div className="Crop-Controls">
+    <div className={classes.App}>
+      <div>
         <div>
           <div>{info}</div>
         </div>
-        <input type="file" accept="image/*" onChange={onSelectFile} />
+        {!imgSrc && <input type="file" accept="image/*" onChange={onSelectFile} />}
       </div>
       {!!imgSrc && (
         <ReactCrop
@@ -55,11 +56,10 @@ export default function App() {
           onChange={(_, percentCrop) => setCrop(percentCrop)}
           onComplete={(c) => setCompletedCrop(c)}
         >
-          <img ref={imgRef} alt="Crop me" src={imgSrc} onLoad={onImageLoad} />
+          <img ref={imgRef} alt="img" src={imgSrc} onLoad={onImageLoad} />
         </ReactCrop>
       )}
       <div>
-        <button onClick={formateJson}>Добавить</button>
         <pre>
           {json
             ? json.map((item, index) => (
@@ -70,6 +70,7 @@ export default function App() {
               ))
             : ''}
         </pre>
+        <button onClick={formateJson}>Добавить</button>
       </div>
     </div>
   );
