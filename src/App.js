@@ -43,6 +43,9 @@ export default function App() {
 
     const context = canvas.getContext('2d');
 
+    context.strokeStyle  = "#FFCF48";
+    context.lineWidth = 4;
+
     e.target.addEventListener('mousemove', (e) => mouseMoveOnce(e, canvas, context), { once: true });
   }
 
